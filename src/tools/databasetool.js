@@ -43,13 +43,24 @@ const connectDB = (collectionName, callback) => {
  * @param {*} params 参数对象
  * @param {*} callback 回调函数
  */
-exports.findList = (collectionName, params, callback) => {
-  connectDB(collectionName, (err, client, collection) => {
-    // 根据条件查询列表
-    collection.find(params).toArray((err, docs) => {
-      client.close();
-      // 执行 callback 把结果返回给控制器
-      callback(err, docs);
+exports.findList = (collectionName, params) => {
+  return new Promise((resolve, reject) => {
+    connectDB(collectionName, (err, client, collection) => {
+      if (err) {
+        reject(err);
+
+        return;
+      }
+      // 根据条件查询列表
+      collection.find(params).toArray((err, docs) => {
+        client.close();
+        // 通过Promise把结果传递出去
+        if (err) {
+          reject(err);
+        } else {
+          resolve(docs);
+        }
+      });
     });
   });
 };
@@ -71,7 +82,7 @@ exports.findOne = (collectionName, params) => {
       //根据条件查询一个
       collection.findOne(params, (err, doc) => {
         client.close();
-        // 执行 callback 把结果返回给控制器
+        // 通过Promise把结果传递出去
         if (err) {
           reject(err);
         } else {
@@ -89,24 +100,24 @@ exports.findOne = (collectionName, params) => {
  * @param {*} callback 回调函数
  */
 exports.insertOne = (collectionName, params) => {
-  return new Promise((resolve,reject)=>{
+  return new Promise((resolve, reject) => {
     connectDB(collectionName, (err, client, collection) => {
-      if(err){
-        reject(err)
-        return
+      if (err) {
+        reject(err);
+        return;
       }
       // 根据条件查询一个
       collection.insertOne(params, (err, result) => {
         client.close();
-        // 执行 callback 把结果返回给控制器
-        if(err){
-          reject(err)
-        }else{
-          resolve(result)
+        // 通过Promise把结果传递出去
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
         }
       });
     });
-  })
+  });
 };
 
 /**
@@ -116,13 +127,23 @@ exports.insertOne = (collectionName, params) => {
  * @param {*} params 参数对象
  * @param {*} callback 回调函数
  */
-exports.updateOne = (collectionName, condition, params, callback) => {
-  connectDB(collectionName, (err, client, collection) => {
-    // 根据条件修改一个
-    collection.updateOne(condition, { $set: params }, (err, result) => {
-      client.close();
-      // 执行 callback 把结果返回给控制器
-      callback(err, result);
+exports.updateOne = (collectionName, condition, params) => {
+  return new Promise((resolve, reject) => {
+    connectDB(collectionName, (err, client, collection) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      // 根据条件修改一个
+      collection.updateOne(condition, { $set: params }, (err, result) => {
+        client.close();
+        // 通过Promise把结果传递出去
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
     });
   });
 };
@@ -134,12 +155,22 @@ exports.updateOne = (collectionName, condition, params, callback) => {
  * @param {*} callback 回调函数
  */
 exports.deleteOne = (collectionName, params, callback) => {
-  connectDB(collectionName, (err, client, collection) => {
-    // 根据条件删除一个
-    collection.deleteOne(params, (err, result) => {
-      client.close();
-      // 执行 callback 把结果返回给控制器
-      callback(err, result);
+  return new Promise((resolve, reject) => {
+    connectDB(collectionName, (err, client, collection) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      // 根据条件删除一个
+      collection.deleteOne(params, (err, result) => {
+        client.close();
+        // 通过Promise把结果传递出去
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
     });
   });
 };
