@@ -1,0 +1,32 @@
+{
+  "name": "studentmanagersystem_koa2",
+  "version": "1.0.1",
+  "description": "深圳黑马前端21期Node项目",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Duanzihuang/szhmqd21_node.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Duanzihuang/szhmqd21_node/issues"
+  },
+  "homepage": "https://github.com/Duanzihuang/szhmqd21_node#readme",
+  "dependencies": {
+    "captchapng": "^0.0.1",
+    "koa": "^2.6.2",
+    "koa-body": "^4.0.4",
+    "koa-router": "^7.4.0",
+    "koa-session": "^5.10.0",
+    "koa-static": "^5.0.0",
+    "mongodb": "^3.1.10",
+    "xtemplate": "^4.6.1",
+    "xtpl": "^3.4.0"
+  }
+}
