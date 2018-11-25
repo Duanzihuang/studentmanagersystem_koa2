@@ -26,7 +26,7 @@ exports.getRegisterPage = (ctx, next) => {
 /**
  * 最终处理，把用户名密码保存起来，并且返回结果给浏览器
  */
-exports.register = async (ctx, res) => {
+exports.register = async (ctx, next) => {
   const result = { status: 0, message: "注册成功" };
   ctx.type = "json";
 
@@ -125,10 +125,10 @@ exports.login = async (ctx, next) => {
 /**
  * 最终处理，登出处理
  */
-exports.logout = (req, res) => {
+exports.logout = (ctx, next) => {
   // 清空session中的loginedname
-  req.session.loginedName = null;
+  ctx.session.loginedName = null;
 
   // 告诉浏览器跳回到登录页面
-  res.send('<script>location.href="/account/login"</script>');
+  ctx.body = '<script>location.href="/account/login"</script>'
 };
