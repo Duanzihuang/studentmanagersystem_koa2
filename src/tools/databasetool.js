@@ -1,176 +1,204 @@
-const MongoClient = require("mongodb").MongoClient;
-const ObjectId = require("mongodb").ObjectId;
+const mongoose = require("mongoose");
 
-// 导出
-exports.ObjectId = ObjectId;
-
-// Connection URL
-const url = "mongodb://localhost:27017";
-
-// Database Name
-const dbName = "szhmqd21";
+// 连接到数据库
+mongoose.connect(
+  "mongodb://localhost/szhmqd21",
+  { useNewUrlParser: true }
+);
 
 /**
- * 抽取连接数据库的方法
+ * 连接成功
  */
-const connectDB = (collectionName, callback) => {
-  try {
-    MongoClient.connect(
-      url,
-      { useNewUrlParser: true },
-      function(err, client) {
-        if (err == null) {
-          // 拿到了数据操作的db对象
-          const db = client.db(dbName);
-          // 拿到集合
-          const collection = db.collection(collectionName);
+mongoose.connection.on("connected", function() {
+  console.log("Mongoose connection success ");
+});
 
-          // 把结果传递出去
-          callback(err, client, collection);
-        } else {
-          callback(err, null, null);
-        }
-      }
-    );
-  } catch (error) {
-    callback(err, null, null);
-  }
-};
+// 获取Schema
+const Schema = mongoose.Schema;
 
-/**
- * 暴露给控制器用的，查询列表的方法
- * @param {*} collectionName 集合名称
- * @param {*} params 参数对象
- * @param {*} callback 回调函数
- */
-exports.findList = (collectionName, params) => {
-  return new Promise((resolve, reject) => {
-    connectDB(collectionName, (err, client, collection) => {
-      if (err) {
-        reject(err);
+// 创建相应的Schema
+const UserSchema = new Schema(
+  {
+    username: String,
+    password: String
+  },
+  { collection: "accountInfo", versionKey: false }
+);
 
-        return;
-      }
-      // 根据条件查询列表
-      collection.find(params).toArray((err, docs) => {
-        client.close();
-        // 通过Promise把结果传递出去
-        if (err) {
-          reject(err);
-        } else {
-          resolve(docs);
-        }
-      });
-    });
-  });
-};
+const StudentSchema = new Schema(
+  {
+    name: String,
+    age: String,
+    sex: String,
+    phone: String,
+    address: String,
+    introduction: String
+  },
+  { collection: "studentInfo", versionKey: false }
+);
+
+// 创建相应的对象
+const User = mongoose.model("accountInfo", UserSchema);
+const Student = mongoose.model("studentInfo", StudentSchema);
+
+// 定义常量
+const ACCOUNTINFO = "accountInfo";
+const STUDENTINFO = "studentInfo";
+
+// 导出ObjectId
+exports.ObjectId = mongoose.Types.ObjectId;
 
 /**
- * 暴露给控制器用的，查询一个的方法
- * @param {*} collectionName 集合名称
- * @param {*} params 参数对象
- * @param {*} callback 回调函数
+ * 导出查询一个的方法
+ * collectionName 集合名称
+ * params 参数
  */
 exports.findOne = (collectionName, params) => {
   return new Promise((resolve, reject) => {
-    connectDB(collectionName, (err, client, collection) => {
-      if (err) {
-        reject(err);
-
-        return;
-      }
-      //根据条件查询一个
-      collection.findOne(params, (err, doc) => {
-        client.close();
-        // 通过Promise把结果传递出去
-        if (err) {
-          reject(err);
-        } else {
+    switch (collectionName) {
+      case ACCOUNTINFO:
+        User.findOne(params, (err, doc) => {
+          if (err) {
+            reject(err);
+          }
           resolve(doc);
-        }
-      });
-    });
+        });
+        break;
+      default:
+        break;
+    }
   });
 };
 
 /**
- * 暴露给控制器用的，新增一个的方法
- * @param {*} collectionName 集合名称
- * @param {*} params 参数对象
- * @param {*} callback 回调函数
+ * 导出插入一个的方法
+ * collectionName 集合名称
+ * params 参数
  */
 exports.insertOne = (collectionName, params) => {
   return new Promise((resolve, reject) => {
-    connectDB(collectionName, (err, client, collection) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      // 根据条件查询一个
-      collection.insertOne(params, (err, result) => {
-        client.close();
-        // 通过Promise把结果传递出去
-        if (err) {
-          reject(err);
-        } else {
+    switch (collectionName) {
+      case ACCOUNTINFO:
+        // 解构赋值
+        const { username, password } = params;
+        // 创建具体的模型
+        const user = new User({
+          username,
+          password
+        });
+        user.save((err, result) => {
+          if (err) {
+            reject(err);
+          }
           resolve(result);
-        }
-      });
-    });
+        });
+        break;
+      case STUDENTINFO:
+        const student = new Student(params);
+        student.save((err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result);
+        });
+        break;
+      default:
+        break;
+    }
   });
 };
 
 /**
- * 暴露给控制器用的，修改一个的方法
- * @param {*} collectionName 集合名称
- * @param {*} condition 条件
- * @param {*} params 参数对象
- * @param {*} callback 回调函数
+ * 导出查询列表的方法
+ * collectionName 集合名称
+ * condition 条件
+ */
+exports.findList = (collectionName, condition) => {
+  return new Promise((resolve, reject) => {
+    switch (collectionName) {
+      case STUDENTINFO:
+        Student.find(condition, (err, docs) => {
+          if (err) {
+            reject(err);
+          }
+
+          resolve(docs);
+        });
+        break;
+
+      default:
+        break;
+    }
+  });
+};
+
+/**
+ * 导出一个方法，根据id，返回数据
+ */
+exports.findById = (collectionName, id) => {
+  return new Promise((resolve, reject) => {
+    switch (collectionName) {
+      case STUDENTINFO:
+        Student.findById(id, (err, doc) => {
+          if (err) {
+            reject(err);
+          }
+
+          resolve(doc);
+        });
+        break;
+
+      default:
+        break;
+    }
+  });
+};
+
+/**
+ * 导出根据条件修改一个的方法
+ * collectionName 集合名称
+ * condition 条件
+ * params 参数
  */
 exports.updateOne = (collectionName, condition, params) => {
   return new Promise((resolve, reject) => {
-    connectDB(collectionName, (err, client, collection) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      // 根据条件修改一个
-      collection.updateOne(condition, { $set: params }, (err, result) => {
-        client.close();
-        // 通过Promise把结果传递出去
-        if (err) {
-          reject(err);
-        } else {
+    switch (collectionName) {
+      case STUDENTINFO:
+        Student.updateOne(condition, params, (err, result) => {
+          if (err) {
+            reject(err);
+          }
+
           resolve(result);
-        }
-      });
-    });
+        });
+        break;
+
+      default:
+        break;
+    }
   });
 };
 
 /**
- * 暴露给控制器用的，删除一个的方法
- * @param {*} collectionName 集合名称
- * @param {*} params 参数对象
- * @param {*} callback 回调函数
+ * 导出删除一个的方法
+ * collectionName 集合名称
+ * condition 条件
  */
-exports.deleteOne = (collectionName, params, callback) => {
+exports.deleteOne = (collectionName, condition) => {
   return new Promise((resolve, reject) => {
-    connectDB(collectionName, (err, client, collection) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      // 根据条件删除一个
-      collection.deleteOne(params, (err, result) => {
-        client.close();
-        // 通过Promise把结果传递出去
-        if (err) {
-          reject(err);
-        } else {
+    switch (collectionName) {
+      case STUDENTINFO:
+        Student.deleteOne(condition, (err, result) => {
+          if (err) {
+            reject(err);
+          }
+
           resolve(result);
-        }
-      });
-    });
+        });
+        break;
+
+      default:
+        break;
+    }
   });
 };

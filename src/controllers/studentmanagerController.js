@@ -57,9 +57,12 @@ exports.addStudent = async (ctx, next) => {
  * 最终处理，返回修改学生页面(带有查询出来的数据)
  */
 exports.getEditStudentPage = async (ctx, next) => {
-  const doc = await databasetool.findOne("studentInfo", {
-    _id: databasetool.ObjectId(ctx.params.studentId)
-  });
+  // const doc = await databasetool.findOne("studentInfo", {
+  //   _id: databasetool.ObjectId(ctx.params.studentId)
+  // });
+
+  // 根据 id 查询文档
+  const doc = await databasetool.findById("studentInfo", ctx.params.studentId);
 
   xtpl.renderFile(
     path.join(__dirname, "../statics/views/edit.html"),

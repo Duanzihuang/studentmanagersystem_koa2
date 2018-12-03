@@ -26,6 +26,7 @@
     "koa-session": "^5.10.0",
     "koa-static": "^5.0.0",
     "mongodb": "^3.1.10",
+    "mongoose": "^5.3.14",
     "xtemplate": "^4.6.1",
     "xtpl": "^3.4.0"
   }
