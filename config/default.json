@@ -1,0 +1,6 @@
+{
+  "jwt_config": {
+    "secretOrPrivateKey":"szhmqd21",
+    "expiresIn": 180
+  }
+}

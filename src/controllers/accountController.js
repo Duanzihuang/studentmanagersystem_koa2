@@ -2,6 +2,11 @@ const fs = require("fs");
 const path = require("path");
 const databasetool = require(path.join(__dirname, "../tools/databasetool.js"));
 const captchapng = require("captchapng");
+const jwt = require('jsonwebtoken')
+const config = require('config')
+const jwtConfig = config.get('jwt_config')
+const cert = fs.readFileSync(path.join(__dirname,"../pem/private.key"))
+
 /**
  * 最终处理，返回登录页面给浏览器
  */
@@ -110,11 +115,19 @@ exports.login = async (ctx, next) => {
       result.message = "用户名或密码错误";
     } else {
       //登录成功
-      ctx.session.loginedName = ctx.req.body.username;
+      // ctx.session.loginedName = ctx.req.body.username;
+      const token = jwt.sign({_id:doc._id,username:ctx.req.body.username},jwtConfig.secretOrPrivateKey,{expiresIn:jwtConfig.expiresIn}) 
+      
+      // 使用RSA256的密钥加密
+      // const token = jwt.sign({_id:doc._id,username:ctx.req.body.username},cert,{algorithm: 'RS256',expiresIn:jwtConfig.expiresIn})
+
+      // 通过响应头设置Cookies返回给浏览器
+      ctx.res.setHeader('Set-Cookie',`Authorization=${token};Max-Age=${jwtConfig.expiresIn};Path=/`)
     }
 
     ctx.body = result;
   } catch (error) {
+    console.log(error)
     result.status = 3;
     result.message = "数据库操作有误";
 
@@ -128,6 +141,9 @@ exports.login = async (ctx, next) => {
 exports.logout = (ctx, next) => {
   // 清空session中的loginedname
   ctx.session.loginedName = null;
+
+  // 清空浏览器cookies相关的内容
+  ctx.res.setHeader('Set-Cookie',`Authorization=;Max-Age=0;Path=/`)
 
   // 告诉浏览器跳回到登录页面
   ctx.body = '<script>location.href="/account/login"</script>'

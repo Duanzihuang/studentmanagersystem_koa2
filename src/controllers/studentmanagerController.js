@@ -17,7 +17,8 @@ exports.getStudentListPage = async (ctx, next) => {
     {
       students: docs,
       keyword,
-      loginedName: ctx.session.loginedName
+      // loginedName: ctx.session.loginedName
+      loginedName: ctx.req.loginedName
     },
     function(error, content) {
       ctx.body = content;
@@ -31,7 +32,7 @@ exports.getStudentListPage = async (ctx, next) => {
 exports.getAddStudentPage = (ctx, next) => {
   xtpl.renderFile(
     path.join(__dirname, "../statics/views/add.html"),
-    { loginedName: ctx.session.loginedName },
+    { loginedName: ctx.req.loginedName },
     function(error, content) {
       ctx.body = content;
     }
@@ -68,7 +69,8 @@ exports.getEditStudentPage = async (ctx, next) => {
     path.join(__dirname, "../statics/views/edit.html"),
     {
       student: doc,
-      loginedName: ctx.session.loginedName
+      // loginedName: ctx.session.loginedName
+      loginedName: ctx.req.loginedName
     },
     function(error, content) {
       ctx.body = content;
